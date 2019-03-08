@@ -12,6 +12,7 @@ import * as QRCode from 'qrcode';
 import BigNumber from "bignumber.js";
 import {RepresentativeService} from "../../services/representative.service";
 import {BehaviorSubject} from "rxjs/BehaviorSubject";
+import * as url from 'url';
 
 @Component({
   selector: 'app-account-details',
@@ -115,9 +116,30 @@ export class AccountDetailsComponent implements OnInit, OnDestroy {
     this.account.pendingFiat = this.util.unit.antToMikron(this.account.pending || 0).times(this.price.price.lastPrice).toNumber();
     await this.getAccountHistory(this.accountID);
 
+    await this.generateQR(2);
+  }
 
-    const qrCode = await QRCode.toDataURL(`${this.accountID}`);
+  async generateQR(style) {
+    if (style == 0) {
+      this.qrCodeImage = null;
+      return;
+    }
+    let url = ''
+    switch (style) {
+      default:
+      case 1: url = this.accountID; break;
+      case 2: url = this.prepareSendToUrl(this.accountID); break;
+    }
+    const qrCode = await QRCode.toDataURL(url);
     this.qrCodeImage = qrCode;
+  }
+
+  // Prepare send-to URL, to our send route with account
+  prepareSendToUrl(account) {
+    let u = url.parse(this.settings.settings.serverAPI);
+    u.pathname = '/send';
+    const urlStr = url.format(u) + '?to=' + account;
+    return urlStr;
   }
 
   ngOnDestroy() {

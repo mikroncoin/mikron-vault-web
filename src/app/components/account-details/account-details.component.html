@@ -133,8 +133,16 @@
             </div>
           </div>
           <div class="uk-width-2-5@s uk-width-1-4@m uk-text-center">
+            <span>
+              QR:
+              <a (click)="generateQR(2)">Vault</a>
+              |
+              <a (click)="generateQR(1)">ID only</a>
+              |
+              <a (click)="generateQR(0)">None</a>
+            </span>
             <img *ngIf="qrCodeImage" [src]="qrCodeImage"><br />
-            <span class="uk-text-small">Scan to receive Mikron</span>
+            <span class="uk-text-small">Scan to send Mikron</span>
           </div>
         </div>
 
