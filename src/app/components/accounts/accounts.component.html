@@ -10,7 +10,7 @@
       <div class="uk-width-1-2 uk-text-right">
         <div uk-grid>
           <div class="uk-width-1-1">
-            <input type="number" class="uk-input uk-form-width-small" [(ngModel)]="newAccountIndex" placeholder="Account #" *ngIf="viewAdvanced">
+            <input type="number" class="uk-input uk-form-width-small" [(ngModel)]="newAccountIndex" placeholder="{{'account-no' | t}}" *ngIf="viewAdvanced">
             <button class="uk-button uk-button-secondary" (click)="createAccount()">
               {{'accsc.add-new' | t}}
             </button>
