@@ -2,12 +2,16 @@
     "account": "Account",
     "accounts": "Accounts",
     "address-book": "Address Book",
+    "amount": "Amount",
     "balance": "Balance",
+    "date": "Date",
+    "hash": "Hash",
     "language": "Language",
     "new": "New",
     "pending": "Pending",
     "prod-name": "MikronWebWallet",
     "receive": "Receive",
+    "representative": "Representative",
     "send": "Send",
     "settings": "Settings",
     "accsc": {
@@ -18,10 +22,18 @@
             "text-a": "click here to create one"
         },
         "view.basic": "BASIC",
-        "view.advanced": "ADVANCED"
+        "view.advanced": "ADVANCED MODE"
     },
     "accdetc": {
-        "account-balance": "Account Balance"
+        "account-balance": "Account Balance",
+        "load-more": "Load More Results",
+        "no-history": "No account history",
+        "pending-deposits": "Pending Deposits",
+        "pending-transactions": "Pending Transactions",
+        "recent-transactions": "Recent Transactions",
+        "rep-list": "Representative List Results",
+        "scan-qr": "Scan to receive Mikron",
+        "title": "Account Details"
     },
     "appc": {
         "based-on": {

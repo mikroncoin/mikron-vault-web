@@ -2,12 +2,16 @@
     "account": "Számla",
     "accounts": "Számlák",
     "address-book": "Címtár",
+    "amount": "Összeg",
     "balance": "Egyenleg",
+    "date": "Dátum",
+    "hash": "Hasító érték",
     "language": "Nyelv",
     "new": "Új",
     "pending": "Függő",
     "prod-name": "MikronWebesTárca",
     "receive": "Fogadás",
+    "representative": "Képviselő",
     "send": "Küldés",
     "settings": "Beállítások",
     "accsc": {
@@ -18,10 +22,18 @@
             "text-a": "klikkelj ide hogy létrehozz egyet"
         },
         "view.basic": "ALAP",
-        "view.advanced": "HALADÓ"
+        "view.advanced": "HALADÓ MÓD"
     },
     "accdetc": {
-        "account-balance": "Számla Egyenleg"
+        "account-balance": "Számla Egyenleg",
+        "load-more": "Több sor betöltése",
+        "no-history": "Nincsenek műveletek",
+        "pending-deposits": "Függő fogadások",
+        "pending-transactions": "Függő utalások",
+        "recent-transactions": "Legutóbbi utalások",
+        "rep-list": "Képviselők Lista Eredmény",
+        "scan-qr": "Szkenneld Mikron küldéséhez",
+        "title": "Számla részletek"
     },
     "appc": {
         "based-on": {
