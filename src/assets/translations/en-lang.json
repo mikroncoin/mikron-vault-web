@@ -10,6 +10,16 @@
     "receive": "Receive",
     "send": "Send",
     "settings": "Settings",
+    "accsc": {
+        "add-new": "Add New Account",
+        "detail-desc": "Click on an account to view more details!",
+        "no-acc": {
+            "text1": "You don't have any accounts yet,",
+            "text-a": "click here to create one"
+        },
+        "view.basic": "BASIC",
+        "view.advanced": "ADVANCED"
+    },
     "accdetc": {
         "account-balance": "Account Balance"
     },

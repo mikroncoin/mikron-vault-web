@@ -10,6 +10,16 @@
     "receive": "Fogadás",
     "send": "Küldés",
     "settings": "Beállítások",
+    "accsc": {
+        "add-new": "Új számla hozzáadása",
+        "detail-desc": "Válassz ki egy számlát a részletekért!",
+        "no-acc": {
+            "text1": "Még nincs egy számlád sem,",
+            "text-a": "klikkelj ide hogy létrehozz egyet"
+        },
+        "view.basic": "ALAP",
+        "view.advanced": "HALADÓ"
+    },
     "accdetc": {
         "account-balance": "Számla Egyenleg"
     },
