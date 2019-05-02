@@ -33,6 +33,20 @@
     </div>
 
     <div uk-grid class="uk-margin-top">
+      Helló
+
+      <div class="instascan-container">
+        <video id="instascan"></video>
+      </div>
+
+      <div>
+        <ul>
+          <li class="" *ngFor="let camera of cameras"><a (click)="selectCamera(camera)">{{camera.id + camera.name}}</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div uk-grid class="uk-margin-top">
 
       <div class="uk-width-1-1@m">
         <div class="uk-card uk-card-default uk-card-small">
