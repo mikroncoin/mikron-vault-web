@@ -60,7 +60,8 @@ export class AccountDetailsComponent implements OnInit, OnDestroy {
     private wallet: WalletService,
     private util: UtilService,
     public settings: AppSettingsService,
-    private block: BlockService) { }
+    private block: BlockService,
+  ) { }
 
   async ngOnInit() {
     this.routerSub = this.route.events.subscribe(event => {
@@ -187,8 +188,9 @@ export class AccountDetailsComponent implements OnInit, OnDestroy {
         return h;
       });
 
-      // Remove change blocks now that we are using the raw output
-      this.accountHistory = this.accountHistory.filter(h => h.type !== 'change' && h.subtype !== 'change');
+      // Filter out comment blocks
+      // Filter out change blocks (now that we are using the raw output)
+      this.accountHistory = this.accountHistory.filter(h => h.type !== 'comment' && h.type !== 'change' && h.subtype !== 'change');
 
       if (additionalBlocksInfo.length) {
         const blocksInfo = await this.api.blocksInfo(additionalBlocksInfo.map(b => b.link));
