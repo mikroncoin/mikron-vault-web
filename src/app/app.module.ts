@@ -49,6 +49,7 @@ import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { TranslateTPipe } from './pipes/translate.pipe';
 import { LanguageService } from './services/language.service';
 import { QrScanComponent } from './components/qr-scan/qr-scan.component'
+import { AccountLabelService } from './services/account-label.service';
 
 export function HttpLoaderFactory(httpClient: HttpClient) {
   return new TranslateHttpLoader(httpClient, '/assets/translations/', '-lang.json');
@@ -114,6 +115,7 @@ export function HttpLoaderFactory(httpClient: HttpClient) {
     LedgerService,
     DesktopService,
     LanguageService,
+    AccountLabelService,
   ],
   bootstrap: [AppComponent]
 })

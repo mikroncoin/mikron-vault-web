@@ -62,7 +62,7 @@ export class ApiService {
     return await this.request('account_history', { account, count, raw });
   }
   async accountInfo(account): Promise<any> {
-    return await this.request('account_info', { account, pending: true, representative: true, weight: true });
+    return await this.request('account_info', { account, pending: true, representative: true, weight: true, comment: true });
   }
   async validateAccountNumber(account): Promise<{ valid: '1'|'0' }> {
     return await this.request('validate_account_number', { account });

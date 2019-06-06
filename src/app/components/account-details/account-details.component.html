@@ -23,12 +23,12 @@
             </div>
             <div *ngIf="!showEditAddressBook" uk-grid>
               <div class="uk-width-1-1">
-                <div *ngIf="addressBookEntry">
-                    <h3 class="uk-card-title">{{ addressBookEntry }}</h3>
+                <div *ngIf="accountLabels.nice">
+                    <h3 class="uk-card-title" uk-tooltip title="{{ accountLabels.full }}">{{ accountLabels.nice }}</h3>
                     <div class="uk-text-small uk-text-truncate">{{ accountID }}</div>
                 </div>
 
-                <div *ngIf="!addressBookEntry">
+                <div *ngIf="!accountLabels.nice">
                   <h3 class="uk-card-title uk-text-truncate" style="margin-bottom: 0;">{{ accountID }}</h3>
                 </div>
               </div>

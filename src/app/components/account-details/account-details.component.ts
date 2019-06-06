@@ -12,6 +12,7 @@ import * as QRCode from 'qrcode';
 import BigNumber from "bignumber.js";
 import {RepresentativeService} from "../../services/representative.service";
 import {BehaviorSubject} from "rxjs/BehaviorSubject";
+import {AccountLabelService, AccountLabels} from "../../services/account-label.service";
 
 @Component({
   selector: 'app-account-details',
@@ -28,7 +29,7 @@ export class AccountDetailsComponent implements OnInit, OnDestroy {
   qrIntegrations = this.settings.qrIntegrations;
 
   repLabel: any = '';
-  addressBookEntry: any = null;
+  accountLabels: AccountLabels|null = null;
   account: any = {};
   accountID: string = '';
 
@@ -61,6 +62,7 @@ export class AccountDetailsComponent implements OnInit, OnDestroy {
     private util: UtilService,
     public settings: AppSettingsService,
     private block: BlockService,
+    private accountLabelService: AccountLabelService,
   ) { }
 
   async ngOnInit() {
@@ -80,10 +82,10 @@ export class AccountDetailsComponent implements OnInit, OnDestroy {
   async loadAccountDetails() {
     this.pendingBlocks = [];
     this.accountID = this.router.snapshot.params.account;
-    this.addressBookEntry = this.addressBook.getAccountName(this.accountID);
-    this.addressBookModel = this.addressBookEntry || '';
-    this.walletAccount = this.wallet.getWalletAccount(this.accountID);
     this.account = await this.api.accountInfo(this.accountID);
+    this.accountLabels = this.accountLabelService.getNiceLabel(this.accountID, this.account.comment);
+    this.addressBookModel = this.accountLabels.private || '';
+    this.walletAccount = this.wallet.getWalletAccount(this.accountID);
 
     const knownRepresentative = this.repService.getRepresentative(this.account.representative);
     this.repLabel = knownRepresentative ? knownRepresentative.name : null;
@@ -256,10 +258,10 @@ export class AccountDetailsComponent implements OnInit, OnDestroy {
     const addressBookName = this.addressBookModel.trim();
     if (!addressBookName) {
       // Check for deleting an entry in the address book
-      if (this.addressBookEntry) {
+      if (this.accountLabels.private) {
         this.addressBook.deleteAddress(this.accountID);
         this.notifications.sendSuccessKey('accdetc.success-addr-remove');
-        this.addressBookEntry = null;
+        this.accountLabels.private = null;
       }
 
       this.showEditAddressBook = false;
@@ -275,7 +277,7 @@ export class AccountDetailsComponent implements OnInit, OnDestroy {
 
     this.notifications.sendSuccessKey('accdetc.success-addr-saved');
 
-    this.addressBookEntry = addressBookName;
+    this.accountLabels.private = addressBookName;
     this.showEditAddressBook = false;
   }
 
