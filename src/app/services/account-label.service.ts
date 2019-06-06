@@ -23,30 +23,26 @@ export class AccountLabelService {
 
   // Take the private label and public label -- supplied explicitly so bg API call is not hidden --
   // and combines the two (or take the one existing)
-  getNiceLabel(account: string, accountComment: string|null): AccountLabels|null {
-    if (!account || !account.length) return null;
-    const addressBookLabel = this.addressBookService.getAccountName(account);
+  getLabels(account: string, accountComment: string|null): AccountLabels|null {
+    let labels: AccountLabels = {public: accountComment, private: null, nice: null, full: null};
+    if (!account || !account.length) return labels;
+    labels.private = this.addressBookService.getAccountName(account);
     // none
-    if (!accountComment && !addressBookLabel) return null;
+    if (!labels.public && !labels.private) return labels;
     // at least one exists
-    let nice = '';
-    let full = '';
-    if (accountComment) {
-      nice = this.shortenLabelString(accountComment);
-      full = accountComment;
+    labels.nice = '';
+    labels.full = '';
+    if (labels.public) {
+      labels.nice = this.shortenLabelString(labels.public);
+      labels.full = labels.public;
     }
-    if (addressBookLabel) {
-      if (nice) nice = nice + ' ';
-      if (full) full = full + ', ';
-      nice = nice + '(' + this.shortenLabelString(addressBookLabel) + ')';
-      full = full + addressBookLabel;
+    if (labels.private) {
+      if (labels.nice) labels.nice = labels.nice + ' ';
+      if (labels.full) labels.full = labels.full + ', ';
+      labels.nice = labels.nice + '(' + this.shortenLabelString(labels.private) + ')';
+      labels.full = labels.full + labels.private;
     }
-    return {
-      public: accountComment,
-      private: addressBookLabel,
-      nice: nice,
-      full: full,
-    };
+    return labels;
   }
 
   shortenLabelString(label: string|null): string|null {

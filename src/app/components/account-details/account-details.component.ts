@@ -83,7 +83,7 @@ export class AccountDetailsComponent implements OnInit, OnDestroy {
     this.pendingBlocks = [];
     this.accountID = this.router.snapshot.params.account;
     this.account = await this.api.accountInfo(this.accountID);
-    this.accountLabels = this.accountLabelService.getNiceLabel(this.accountID, this.account.comment);
+    this.accountLabels = this.accountLabelService.getLabels(this.accountID, this.account.comment);
     this.addressBookModel = this.accountLabels.private || '';
     this.walletAccount = this.wallet.getWalletAccount(this.accountID);
 
