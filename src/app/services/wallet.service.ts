@@ -12,6 +12,7 @@ import {AppSettingsService} from "./app-settings.service";
 import {PriceService} from "./price.service";
 import {LedgerService} from "./ledger.service";
 import {LanguageService} from "../services/language.service";
+import {AccountLabelService, AccountLabels} from "../services/account-label.service";
 
 export type WalletType = "seed" | "ledger" | "privateKey";
 
@@ -27,7 +28,8 @@ export interface WalletAccount {
   pendingRaw: BigNumber;
   balanceFiat: number;
   pendingFiat: number;
-  addressBookName: string|null;
+  accountComment: string|null;
+  accountLabels: AccountLabels|null;
 }
 export interface FullWallet {
   type: WalletType;
@@ -81,7 +83,8 @@ export class WalletService {
     private block: BlockService,
     private ledgerService: LedgerService,
     private notifications: NotificationService,
-    private language: LanguageService
+    private language: LanguageService,
+    private accountLabelService: AccountLabelService,
   ) {
     this.websocket.newTransactions$.subscribe(async (transaction) => {
       if (!transaction) return; // Not really a new transaction
@@ -130,7 +133,7 @@ export class WalletService {
 
   reloadAddressBook() {
     this.wallet.accounts.forEach(account => {
-      account.addressBookName = this.addressBook.getAccountName(account.id);
+      account.accountLabels = this.accountLabelService.getLabels(account.id, account.accountComment);
     })
   }
 
@@ -379,8 +382,8 @@ export class WalletService {
 
     console.log(`Got account!`, account);
     const accountID = account.address;
-    const addressBookName = this.addressBook.getAccountName(accountID);
-
+    const accountLabels = this.accountLabelService.getLabels(accountID, null);
+ 
     const newAccount: WalletAccount = {
       id: accountID,
       frontier: null,
@@ -393,7 +396,8 @@ export class WalletService {
       balanceFiat: 0,
       pendingFiat: 0,
       index: index,
-      addressBookName,
+      accountComment: null,
+      accountLabels: accountLabels,
     };
 
     return newAccount;
@@ -403,8 +407,8 @@ export class WalletService {
     const accountBytes = this.util.account.generateAccountSecretKeyBytes(this.wallet.seedBytes, index);
     const accountKeyPair = this.util.account.generateAccountKeyPair(accountBytes);
     const accountName = this.util.account.getPublicAccountID(accountKeyPair.publicKey);
-    const addressBookName = this.addressBook.getAccountName(accountName);
-
+    const accountLabels = this.accountLabelService.getLabels(accountName, null);
+ 
     const newAccount: WalletAccount = {
       id: accountName,
       frontier: null,
@@ -417,7 +421,8 @@ export class WalletService {
       balanceFiat: 0,
       pendingFiat: 0,
       index: index,
-      addressBookName,
+      accountComment: null,
+      accountLabels: accountLabels,
     };
 
     return newAccount;
@@ -484,24 +489,25 @@ export class WalletService {
     this.wallet.balanceFiat = 0;
     this.wallet.pendingFiat = 0;
     const accountIDs = this.wallet.accounts.map(a => a.id);
-    const accounts = await this.api.accountsBalances(accountIDs);
-    const frontiers = await this.api.accountsFrontiers(accountIDs);
+    //const accounts = await this.api.accountsBalances(accountIDs);
+    //const frontiers = await this.api.accountsFrontiers(accountIDs);
     // const allFrontiers = [];
     // for (const account in frontiers.frontiers) {
     //   allFrontiers.push({ account, frontier: frontiers.frontiers[account] });
     // }
     // const frontierBlocks = await this.api.blocksInfo(allFrontiers.map(f => f.frontier));
-
+    const accountInfos = await this.api.accountsInfos(accountIDs);
+    
     let walletBalance = new BigNumber(0);
     let walletPending = new BigNumber(0);
 
-    for (const accountID in accounts.balances) {
-      if (!accounts.balances.hasOwnProperty(accountID)) continue;
+    for (const accountID in accountInfos.infos) {
+      if (!accountInfos.infos.hasOwnProperty(accountID)) continue;
       // Find the account, update it
       const walletAccount = this.wallet.accounts.find(a => a.id == accountID);
       if (!walletAccount) continue;
-      walletAccount.balance = new BigNumber(accounts.balances[accountID].balance);
-      walletAccount.pending = new BigNumber(accounts.balances[accountID].pending);
+      walletAccount.balance = new BigNumber(accountInfos.infos[accountID].balance);
+      walletAccount.pending = new BigNumber(accountInfos.infos[accountID].pending);
 
       walletAccount.balanceRaw = new BigNumber(walletAccount.balance).mod(this.unitMikron);
       walletAccount.pendingRaw = new BigNumber(walletAccount.pending).mod(this.unitMikron);
@@ -509,7 +515,9 @@ export class WalletService {
       walletAccount.balanceFiat = this.util.unit.antToMikron(walletAccount.balance).times(fiatPrice).toNumber();
       walletAccount.pendingFiat = this.util.unit.antToMikron(walletAccount.pending).times(fiatPrice).toNumber();
 
-      walletAccount.frontier = frontiers.frontiers[accountID] || null;
+      walletAccount.frontier = accountInfos.infos[accountID].frontier || null;
+      walletAccount.accountComment = accountInfos.infos[accountID].comment || null;
+      walletAccount.accountLabels = this.accountLabelService.getLabels(accountID, walletAccount.accountComment);
 
       // Look at the accounts latest block to determine if they are using state blocks
       // if (walletAccount.frontier && frontierBlocks.blocks[walletAccount.frontier]) {
@@ -548,7 +556,7 @@ export class WalletService {
 
   async loadWalletAccount(accountIndex, accountID) {
     let index = accountIndex;
-    const addressBookName = this.addressBook.getAccountName(accountID);
+    const accountLabels = this.accountLabelService.getLabels(accountID, null);
 
     const newAccount: WalletAccount = {
       id: accountID,
@@ -562,7 +570,8 @@ export class WalletService {
       balanceFiat: 0,
       pendingFiat: 0,
       index: index,
-      addressBookName,
+      accountComment: null,
+      accountLabels: accountLabels,
     };
 
     this.wallet.accounts.push(newAccount);

@@ -73,7 +73,7 @@ export class AddressBookComponent implements OnInit, AfterViewInit {
       // IF this is one of our accounts, set its name, and hope things update?
       const walletAccount = this.walletService.wallet.accounts.find(a => a.id.toLowerCase() === this.newAddressAccount.toLowerCase());
       if (walletAccount) {
-        walletAccount.addressBookName = this.newAddressName;
+        walletAccount.accountLabels.private = this.newAddressName;
       }
       this.cancelNewAddress();
     } catch (err) {

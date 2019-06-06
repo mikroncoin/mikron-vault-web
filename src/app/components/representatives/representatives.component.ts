@@ -9,6 +9,7 @@ import {BehaviorSubject} from "rxjs/BehaviorSubject";
 import {NotificationService} from "../../services/notification.service";
 import {BlockService} from "../../services/block.service";
 import {LanguageService} from "../../services/language.service";
+import {AccountLabelService} from "../../services/account-label.service";
 
 @Component({
   selector: 'app-representatives',
@@ -40,7 +41,8 @@ export class RepresentativesComponent implements OnInit {
     private util: UtilService,
     private representativeService: RepresentativeService,
     public settings: AppSettingsService,
-    private languageService: LanguageService
+    private languageService: LanguageService,
+    private accountLabelService: AccountLabelService,
   ) { }
 
   async ngOnInit() {
@@ -108,12 +110,13 @@ export class RepresentativesComponent implements OnInit {
 
   async getWalletAccountDetails(): Promise<any> {
     // Run an accountInfo call for each account in the wallet to get their representatives
+    // TODO: could be done in one call with accounts_infos
     const walletAccountInfos = await Promise.all(
       this.wallet.wallet.accounts.map(account =>
         this.api.accountInfo(account.id)
           .then(res => {
             res.id = account.id;
-            res.addressBookName = account.addressBookName;
+            res.accountLabels = this.accountLabelService.getLabels(account.id, res.comment);
 
             return res;
           })

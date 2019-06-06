@@ -80,13 +80,13 @@
                   <select class="uk-select" [(ngModel)]="changeAccountID" (change)="newAccountID()" id="form-horizontal-select">
                     <option [value]="null">{{'repsc.select-accs' | t}}</option>
                     <option [value]="'all'">{{'repsc.all-accs' | t}}</option>
-                    <option *ngFor="let account of wallet.wallet.accounts" [value]="account.id">{{ account.addressBookName ? account.addressBookName + ' - ' : '' }} {{ account.id | squeeze }} ({{ account.balance | rai: settings.settings.displayDenomination }})</option>
+                    <option *ngFor="let account of wallet.wallet.accounts" [value]="account.id">{{ account.accountLabels.nice ? account.accountLabels.nice + ' - ' : '' }} {{ account.id | squeeze }} ({{ account.balance | rai: settings.settings.displayDenomination }})</option>
                   </select>
                   <ul class="uk-list uk-list-striped">
                     <li *ngFor="let account of selectedAccounts">
                       <div uk-grid>
                         <div class="uk-width-5-6 uk-text-truncate">
-                          <span *ngIf="account.addressBookName" class="uk-margin-small-right uk-label uk-label-default">{{ account.addressBookName }}</span> {{ account.id }}
+                          <span *ngIf="account.accountLabels.nice" class="uk-margin-small-right uk-label uk-label-default">{{ account.accountLabels.nice }}</span> {{ account.id }}
                         </div>
                         <div class="uk-width-1-6 uk-text-center" style="padding-left: 0;">
                           <a (click)="removeSelectedAccount(account)" class="uk-text-danger" title="{{'repsc.remove' | t}}" uk-tooltip><span uk-icon="icon: close;"></span></a>
