@@ -1,6 +1,7 @@
 import {Injectable} from '@angular/core';
 import {AddressBookService} from './address-book.service';
 import {ApiService} from "./api.service";
+import {LanguageService} from './language.service';
 
 /**
  * Handles public label -- account comment from blockchain/node -- and private label -- account label from address book
@@ -19,6 +20,7 @@ export class AccountLabelService {
   constructor(
       private addressBookService: AddressBookService,
       private apiService: ApiService,
+      private languageService: LanguageService,
   ) { }
 
   // Take the private label and public label -- supplied explicitly so bg API call is not hidden --
@@ -29,18 +31,25 @@ export class AccountLabelService {
     labels.private = this.addressBookService.getAccountName(account);
     // none
     if (!labels.public && !labels.private) return labels;
-    // at least one exists
-    labels.nice = '';
-    labels.full = '';
-    if (labels.public) {
-      labels.nice = this.shortenLabelString(labels.public);
-      labels.full = labels.public;
+    if (labels.public && labels.private) {
+      // both exist
+      labels.nice = this.shortenLabelString(labels.public) + ' (' + this.shortenLabelString(labels.private) + ')';
+      labels.full =
+        this.languageService.getTran('public-label') + ': ' +
+        labels.public + ', ' +
+        this.languageService.getTran('private-label') + ': ' +
+        labels.private;
+      return labels;
     }
-    if (labels.private) {
-      if (labels.nice) labels.nice = labels.nice + ' ';
-      if (labels.full) labels.full = labels.full + ', ';
-      labels.nice = labels.nice + '(' + this.shortenLabelString(labels.private) + ')';
-      labels.full = labels.full + labels.private;
+    if (labels.public && !labels.private) {
+      labels.nice = this.shortenLabelString(labels.public);
+      labels.full = labels.public + ' (' + this.languageService.getTran('public-label') + ')';
+      return labels;
+    }
+    if (!labels.public && labels.private) {
+      labels.nice = '(' + this.shortenLabelString(labels.private) + ')';
+      labels.full = labels.private + ' (' + this.languageService.getTran('private-label') + ')';
+      return labels;
     }
     return labels;
   }
