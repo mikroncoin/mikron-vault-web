@@ -86,7 +86,7 @@
                     <li *ngFor="let account of selectedAccounts">
                       <div uk-grid>
                         <div class="uk-width-5-6 uk-text-truncate">
-                          <span *ngIf="account.accountLabels.nice" class="uk-margin-small-right uk-label uk-label-default">{{ account.accountLabels.nice }}</span> {{ account.id }}
+                          <span *ngIf="account.accountLabels.nice" class="uk-margin-small-right uk-label uk-label-default account-label" uk-tooltip title="{{ account.accountLabels.full }}">{{ account.accountLabels.nice }}</span> {{ account.id }}
                         </div>
                         <div class="uk-width-1-6 uk-text-center" style="padding-left: 0;">
                           <a (click)="removeSelectedAccount(account)" class="uk-text-danger" title="{{'repsc.remove' | t}}" uk-tooltip><span uk-icon="icon: close;"></span></a>

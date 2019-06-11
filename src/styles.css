@@ -1,1 +1,9 @@
 /* You can add global styles to this file, and also import other style files */
+
+/* Modifier for account labels, over uk-label.  Make it not uppercase.
+   There is no real inheritance in plain CSS, account-label has to go together with uk-label. */
+.account-label {
+  text-transform: none;
+  background: #ccc;
+  color: #333;
+}

@@ -171,7 +171,7 @@
                   <div uk-grid>
                     <div class="uk-width-expand uk-text-truncate">
                       <a [routerLink]="'/account/' + pending.account" class="uk-link-text" title="{{'accdetc.action' | t}}" uk-tooltip>
-                        <span *ngIf="pending.addressBookName" class="uk-margin-small-right uk-label uk-label-default">{{ pending.addressBookName }}</span> {{ pending.account }}
+                        <span *ngIf="pending.addressBookName" class="uk-margin-small-right uk-label uk-label-default account-label">{{ pending.addressBookName }}</span> {{ pending.account }}
                       </a>
                     </div>
                     <div class="uk-width-auto" style="padding-left: 10px;">
@@ -194,7 +194,7 @@
                   <div uk-grid>
                     <div class="uk-width-expand uk-text-truncate">
                       <a [routerLink]="'/account/' + (history.hist_account)" class="uk-link-text" title="{{'accdetc.action' | t}}" uk-tooltip>
-                        <span *ngIf="history.accountLabels" class="uk-margin-small-right uk-label uk-label-default" uk-tooltip title="{{ history.accountLabels.full }}">{{ history.accountLabels.nice }}</span> {{ history.hist_account }}
+                        <span *ngIf="history.accountLabels" class="uk-margin-small-right uk-label uk-label-default account-label" uk-tooltip title="{{ history.accountLabels.full }}">{{ history.accountLabels.nice }}</span> {{ history.hist_account }}
                       </a>
                     </div>
                     <div class="uk-width-auto" style="padding-left: 10px;">
