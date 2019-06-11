@@ -176,16 +176,16 @@ export class AccountDetailsComponent implements OnInit, OnDestroy {
       this.accountHistory = history_filtered.map(h => {
         // prepare date
         h.date = h.block_time * 1000;
-        if (h.type === 'state') {
+        if (h.type === 'state' && h.link) {
           // For Open and receive blocks, we need to look up block info to get originating account
           if (h.subtype === 'open' || h.subtype === 'receive' || h.subtype === 'open_receive') {
             additionalBlocksInfo.push({ hash: h.hash, link: h.link });
           } else {  // send or other
-            h.link_as_account = this.util.account.getPublicAccountID(this.util.hex.toUint8(h.link));
-            h.addressBookName = this.addressBook.getAccountName(h.link_as_account) || null;
+            h.hist_account = this.util.account.getPublicAccountID(this.util.hex.toUint8(h.link));
           }
         } else {
-          h.addressBookName = this.addressBook.getAccountName(h.account) || null;
+          // no link
+          h.hist_account = h.account;
         }
         return h;
       });
@@ -206,11 +206,17 @@ export class AccountDetailsComponent implements OnInit, OnDestroy {
 
           const blockData = blocksInfo.blocks[block];
 
-          accountInHistory.link_as_account = blockData.block_account;
-          accountInHistory.addressBookName = this.addressBook.getAccountName(blockData.block_account) || null;
+          accountInHistory.hist_account = blockData.block_account;
         }
       }
 
+      // Retrieve comments for accounts that appear in history, deduplicate
+      const histAccs = Array.from(new Set(this.accountHistory.map(h => h.hist_account)));
+      const accountsInfos = await this.api.accountsInfos(histAccs);
+      if (accountsInfos && accountsInfos.infos) {
+        // fill in labels
+        this.accountHistory.forEach(h => h.accountLabels = this.accountLabelService.getLabels(h.hist_account, accountsInfos.infos[h.hist_account].comment));
+      }
     } else {
       this.accountHistory = [];
     }
