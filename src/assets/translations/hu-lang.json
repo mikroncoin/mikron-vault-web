@@ -319,6 +319,10 @@
         "pwd-placeholder": "tárca jelszó",
         "title": "Tárca Importálás"
     },
+    "labelserv": {
+        "error-comment-block": "Hiba történt a publikus címke mentése során (nem sikerült megjegyzés blokkot létrehozni)",
+        "success-comment-block": "Publikus címke sikeresen mentve a blokkláncba"
+    },
     "lang": {
         "en": "angol",
         "hu": "magyar"

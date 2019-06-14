@@ -55,6 +55,9 @@ export class ApiService {
   async blockCount(): Promise<{count: number, unchecked: number }> {
     return await this.request('block_count', { });
   }
+  async blockHash(block: any): Promise<{ hash: string }> {
+    return await this.request('block_hash', { block: JSON.stringify(block) });
+  }
   async workGenerate(hash): Promise<{ work: string }> {
     return await this.request('work_generate', { hash });
   }

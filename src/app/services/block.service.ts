@@ -8,9 +8,11 @@ import {NotificationService} from "./notification.service";
 import {AppSettingsService} from "./app-settings.service";
 import {WalletService} from "./wallet.service";
 import {LedgerService} from "./ledger.service";
+import * as CryptoJS from 'crypto-js';
 const nacl = window['nacl'];
 
 const STATE_BLOCK_PREAMBLE = '0000000000000000000000000000000000000000000000000000000000000006';  // state block type
+const COMMENT_BLOCK_PREAMBLE = '0000000000000000000000000000000000000000000000000000000000000007';  // state block type
 const EPOCH_0 = 1535760000; // Epoch 0, origin for block times, Sept 1 2018
 
 @Injectable()
@@ -232,6 +234,76 @@ export class BlockService {
     }
   }
 
+  async generateComment(walletAccount, comment: string, ledger = false) {
+    const toAcct = await this.api.accountInfo(walletAccount.id);
+    if (!toAcct) throw new Error(`Account must have an open block first`);
+
+    const creationTimeDec = this.getCreationTimeNow();
+    let creationTimeHex = this.padStringLeft(creationTimeDec.toString(16), 8, '0');
+    let blockData;
+    const balance = new BigNumber(toAcct.balance);
+    const balanceDecimal = balance.toString(10);
+    let balancePadded = this.padStringLeft(balance.toString(16), 16, '0');
+    const subtype = 1;
+    const subtypeHex = this.padStringLeft(subtype.toString(16), 8, '0');
+    // convert comment string to utf-8 byte array (in JS strings are UTF-8)
+    const commentUtf8 = CryptoJS.enc.Utf8.parse(comment);  // Could use JS new encoding.TextEncoder().encode(comment); but it was simpler
+    const commentHex = commentUtf8.toString();
+    const commentLen = commentHex.length / 2;
+    const commentLenHex = this.padStringLeft(commentLen.toString(16), 4, '0');
+
+    let signature = null;
+    if (ledger) {
+      const ledgerBlock = {
+        previousBlock: toAcct.frontier,
+        representative: toAcct.representative,
+        balance: balanceDecimal,
+      };
+      try {
+        this.sendLedgerNotification();
+        await this.ledgerService.updateCache(walletAccount.index, toAcct.frontier);
+        const sig = await this.ledgerService.signBlock(walletAccount.index, ledgerBlock);
+        this.clearLedgerNotification();
+        signature = sig.signature;
+      } catch (err) {
+        this.clearLedgerNotification();
+        this.sendLedgerDeniedNotification();
+        return;
+      }
+    } else {
+      // Could use generic signBlock() method
+      signature = this.signCommentBlock(walletAccount, creationTimeHex, toAcct, toAcct.representative, balancePadded, 
+        subtypeHex, commentLenHex, commentHex);
+    }
+
+    if (!this.workPool.workExists(toAcct.frontier)) {
+      this.notifications.sendInfoKey('block-service.info-generate-work');
+    }
+
+    blockData = {
+      type: 'comment',
+      account: walletAccount.id,
+      creation_time: creationTimeDec,
+      previous: toAcct.frontier,
+      representative: toAcct.representative,
+      balance: balanceDecimal,
+      subtype: subtype,
+      comment: comment,
+      signature: signature,
+      work: await this.workPool.getWork(toAcct.frontier),
+    };
+
+    const processResponse = await this.api.process(blockData);
+    if (processResponse && processResponse.hash) {
+      walletAccount.frontier = processResponse.hash;
+      this.workPool.addWorkToCache(processResponse.hash); // Add new hash into the work pool
+      this.workPool.removeFromCache(toAcct.frontier);
+      return processResponse.hash;
+    } else {
+      return null;
+    }
+  }
+
   signOpenBlock(walletAccount, creationTime, previousBlock, sourceBlock, newBalancePadded, representative) {
     const context = blake.blake2bInit(32, null);
     blake.blake2bUpdate(context, this.util.hex.toUint8(STATE_BLOCK_PREAMBLE));
@@ -277,6 +349,43 @@ export class BlockService {
     blake.blake2bUpdate(context, this.util.hex.toUint8(this.util.account.getAccountPublicKey(representativeAccount)));
     blake.blake2bUpdate(context, this.util.hex.toUint8(balancePadded));
     blake.blake2bUpdate(context, this.util.hex.toUint8(link));
+    const hashBytes = blake.blake2bFinal(context);
+
+    const privKey = walletAccount.keyPair.secretKey;
+    const signed = nacl.sign.detached(hashBytes, privKey);
+    const signature = this.util.hex.fromUint8(signed);
+
+    return signature;
+  }
+
+  async signBlock(walletAccount, blockData: any): Promise<string|null> {
+    const blockHash = await this.api.blockHash(blockData);
+    if (!blockHash || !blockHash.hash) {
+      // failed to generate hash
+      return null;
+    }
+    const hashBytes = this.util.hex.toUint8(blockHash.hash);
+
+    const privKey = walletAccount.keyPair.secretKey;
+    const signed = nacl.sign.detached(hashBytes, privKey);
+    const signature = this.util.hex.fromUint8(signed);
+
+    return signature;
+  }
+
+  // Note: instead of duplicating hash generation algo, a block_hash RPC call could be used, at the expense of higher costs.
+  signCommentBlock(walletAccount, creationTime, account, representative, balancePadded, subtypeHex, commentLenHex, commentHex: string) {
+    let context = blake.blake2bInit(32, null);
+
+    blake.blake2bUpdate(context, this.util.hex.toUint8(COMMENT_BLOCK_PREAMBLE));
+    blake.blake2bUpdate(context, this.util.hex.toUint8(this.util.account.getAccountPublicKey(walletAccount.id)));
+    blake.blake2bUpdate(context, this.util.hex.toUint8(creationTime));
+    blake.blake2bUpdate(context, this.util.hex.toUint8(account.frontier));
+    blake.blake2bUpdate(context, this.util.hex.toUint8(this.util.account.getAccountPublicKey(representative)));
+    blake.blake2bUpdate(context, this.util.hex.toUint8(balancePadded));
+    blake.blake2bUpdate(context, this.util.hex.toUint8(subtypeHex));
+    blake.blake2bUpdate(context, this.util.hex.toUint8(commentLenHex));
+    blake.blake2bUpdate(context, this.util.hex.toUint8(commentHex));
     const hashBytes = blake.blake2bFinal(context);
 
     const privKey = walletAccount.keyPair.secretKey;

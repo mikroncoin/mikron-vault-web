@@ -319,6 +319,10 @@
         "pwd-placeholder": "Enter wallet password",
         "title": "Import Wallet"
     },
+    "labelserv": {
+        "error-comment-block": "Error while saving public label (could not create comment block)",
+        "success-comment-block": "Public label successfully saved in blockchain"
+    },
     "lang": {
         "en": "English",
         "hu": "Hungarian"

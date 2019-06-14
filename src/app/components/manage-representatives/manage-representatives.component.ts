@@ -1,5 +1,4 @@
 import {AfterViewInit, Component, OnInit} from '@angular/core';
-import {AddressBookService} from "../../services/address-book.service";
 import {WalletService} from "../../services/wallet.service";
 import {NotificationService} from "../../services/notification.service";
 import {ModalService} from "../../services/modal.service";
@@ -34,7 +33,6 @@ export class ManageRepresentativesComponent implements OnInit, AfterViewInit {
 
   constructor(
     private api: ApiService,
-    private addressBookService: AddressBookService,
     private walletService: WalletService,
     private notificationService: NotificationService,
     public modal: ModalService,

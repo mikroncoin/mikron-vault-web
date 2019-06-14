@@ -57,8 +57,8 @@ export class AccountDetailsComponent implements OnInit, OnDestroy {
     private api: ApiService,
     private price: PriceService,
     private repService: RepresentativeService,
-    private notifications: NotificationService,
-    private wallet: WalletService,
+    private notificationService: NotificationService,
+    private walletService: WalletService,
     private util: UtilService,
     public settings: AppSettingsService,
     private block: BlockService,
@@ -76,6 +76,13 @@ export class AccountDetailsComponent implements OnInit, OnDestroy {
       this.account.pendingFiat = this.util.unit.antToMikron(this.account.pending || 0).times(this.price.price.lastPrice).toNumber();
     });
 
+    this.accountLabelService.publicLabelChanged$.subscribe(accounts => {
+      this.loadAccountDetails();
+    });
+    this.accountLabelService.privateLabelChanged$.subscribe(accounts => {
+      this.loadAccountDetails();
+    });
+
     await this.loadAccountDetails();
   }
 
@@ -85,7 +92,7 @@ export class AccountDetailsComponent implements OnInit, OnDestroy {
     this.account = await this.api.accountInfo(this.accountID);
     this.accountLabels = this.accountLabelService.getLabels(this.accountID, this.account.comment);
     this.addressBookModel = this.accountLabels.private || '';
-    this.walletAccount = this.wallet.getWalletAccount(this.accountID);
+    this.walletAccount = this.walletService.getWalletAccount(this.accountID);
 
     const knownRepresentative = this.repService.getRepresentative(this.account.representative);
     this.repLabel = knownRepresentative ? knownRepresentative.name : null;
@@ -230,21 +237,21 @@ export class AccountDetailsComponent implements OnInit, OnDestroy {
   }
 
   async saveRepresentative() {
-    if (this.wallet.walletIsLocked()) return this.notifications.sendWarningKey('wallet-widget.warning-wallet-locked');
+    if (this.walletService.walletIsLocked()) return this.notificationService.sendWarningKey('wallet-widget.warning-wallet-locked');
     if (!this.walletAccount) return;
     const repAccount = this.representativeModel;
 
     const valid = await this.api.validateAccountNumber(repAccount);
-    if (!valid || valid.valid !== '1') return this.notifications.sendWarningKey('accdetc.warning-account-id');
+    if (!valid || valid.valid !== '1') return this.notificationService.sendWarningKey('accdetc.warning-account-id');
 
     try {
-      const changed = await this.block.generateChange(this.walletAccount, repAccount, this.wallet.isLedgerWallet());
+      const changed = await this.block.generateChange(this.walletAccount, repAccount, this.walletService.isLedgerWallet());
       if (!changed) {
-        this.notifications.sendErrorKey('accdetc.error-rep-change');
+        this.notificationService.sendErrorKey('accdetc.error-rep-change');
         return;
       }
     } catch (err) {
-      this.notifications.sendErrorTranslated(err.message);
+      this.notificationService.sendErrorTranslated(err.message);
       return;
     }
 
@@ -257,34 +264,31 @@ export class AccountDetailsComponent implements OnInit, OnDestroy {
     const newRep = this.repService.getRepresentative(repAccount);
     this.repLabel = newRep ? newRep.name : '';
 
-    this.notifications.sendSuccessKey('accdetc.success-rep-change');
+    this.notificationService.sendSuccessKey('accdetc.success-rep-change');
   }
 
   async saveAddressBook() {
-    const addressBookName = this.addressBookModel.trim();
-    if (!addressBookName) {
-      // Check for deleting an entry in the address book
-      if (this.accountLabels.private) {
-        this.addressBook.deleteAddress(this.accountID);
-        this.notifications.sendSuccessKey('accdetc.success-addr-remove');
-        this.accountLabels.private = null;
-      }
-
+    const addressBookLabel = this.addressBookModel.trim();
+    const saveRes = this.accountLabelService.saveAddressBookEntry(this.accountID, addressBookLabel, this.accountLabels.private);
+    if (saveRes) {
+      // success
+      this.accountLabels.private = addressBookLabel;
       this.showEditAddressBook = false;
       return;
     }
+    // could not save
+    return;
 
-    try {
-      await this.addressBook.saveAddress(this.accountID, addressBookName);
-    } catch (err) {
-      this.notifications.sendErrorTranslated(err.message);
-      return;
+    /* saving of public label
+    const comment = this.addressBookModel.trim();
+    if (this.walletService.walletIsLocked()) return this.notificationService.sendWarningKey('wallet-widget.warning-wallet-locked');
+
+    const saveRes = await this.accountLabelService.saveAccountComment(this.walletAccount, comment, this.walletService.isLedgerWallet());
+    if (saveRes) {
+      this.showEditAddressBook = false;
+      this.accountLabels.public = comment;
     }
-
-    this.notifications.sendSuccessKey('accdetc.success-addr-saved');
-
-    this.accountLabels.private = addressBookName;
-    this.showEditAddressBook = false;
+    */
   }
 
   searchRepresentatives() {
@@ -319,7 +323,7 @@ export class AccountDetailsComponent implements OnInit, OnDestroy {
   }
 
   copied() {
-    this.notifications.sendSuccessKey('copy-success');
+    this.notificationService.sendSuccessKey('copy-success');
   }
 
 }

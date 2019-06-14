@@ -111,9 +111,13 @@ export class WalletService {
       await this.reloadBalances();
     });
 
-    this.addressBook.addressBook$.subscribe(newAddressBook => {
+    this.accountLabelService.publicLabelChanged$.subscribe(accounts => {
+      // need to reload public lables (account comments from the node), this is done in reloadBalances()
+      this.reloadBalances();
+    });
+    this.accountLabelService.privateLabelChanged$.subscribe(accounts => {
       this.reloadAddressBook();
-    })
+    });
   }
 
   async processStateBlock(transaction) {
