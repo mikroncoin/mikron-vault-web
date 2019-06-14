@@ -209,10 +209,10 @@
                 </td>
                 <td class="uk-text-truncate"><a [routerLink]="'/transaction/' + history.hash" class="uk-link-text" title="{{'transdetc.action' | t}}" uk-tooltip>{{ history.hash }}</a></td>
               </tr>
-              <tr *ngIf="!accountHistory.length && !pendingBlocks.length">
+              <tr *ngIf="!accountHistoryNonfiltered.length && !pendingBlocks.length">
                 <td colspan="4" style="text-align: center;">{{'accdetc.no-history' | t}}</td>
               </tr>
-              <tr *ngIf="accountHistory.length + 1 >= pageSize && pageSize <= maxPageSize">
+              <tr *ngIf="accountHistoryNonfiltered.length + 1 >= pageSize && pageSize <= maxPageSize">
                 <td colspan="4" style="text-align: center;">
                   <a (click)="loadMore()" class="uk-link-text">{{'accdetc.load-more' | t}}</a>
                 </td>

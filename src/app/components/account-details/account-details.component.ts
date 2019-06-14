@@ -22,6 +22,7 @@ import {AccountLabelService, AccountLabels} from "../../services/account-label.s
 export class AccountDetailsComponent implements OnInit, OnDestroy {
   unitMikron = 10000000000;
 
+  accountHistoryNonfiltered: any[] = [];
   accountHistory: any[] = [];
   pendingBlocks = [];
   pageSize = 25;
@@ -179,11 +180,10 @@ export class AccountDetailsComponent implements OnInit, OnDestroy {
     let additionalBlocksInfo = [];
 
     if (history && history.history && Array.isArray(history.history)) {
-      const history_filtered = history.history.filter(h => ((h.type !== 'undefined') && !(h.type === 'state' && h.subtype === undefined)));
-      this.accountHistory = history_filtered.map(h => {
+      this.accountHistoryNonfiltered = history.history.map(h => {
         // prepare date
         h.date = h.block_time * 1000;
-        if (h.type === 'state' && h.link) {
+        if (h.type && h.type === 'state' && h.link) {
           // For Open and receive blocks, we need to look up block info to get originating account
           if (h.subtype === 'open' || h.subtype === 'receive' || h.subtype === 'open_receive') {
             additionalBlocksInfo.push({ hash: h.hash, link: h.link });
@@ -199,7 +199,12 @@ export class AccountDetailsComponent implements OnInit, OnDestroy {
 
       // Filter out comment blocks
       // Filter out change blocks (now that we are using the raw output)
-      this.accountHistory = this.accountHistory.filter(h => h.type !== 'comment' && h.type !== 'change' && h.subtype !== 'change');
+      this.accountHistory = this.accountHistoryNonfiltered.filter(h =>
+        h.type !== 'undefined' &&
+        !(h.type === 'state' && h.subtype === undefined) &&
+        h.type !== 'comment' &&
+        h.type !== 'change' &&
+        h.subtype !== 'change');
 
       if (additionalBlocksInfo.length) {
         const blocksInfo = await this.api.blocksInfo(additionalBlocksInfo.map(b => b.link));
