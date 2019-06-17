@@ -37,7 +37,8 @@ export class AccountDetailsComponent implements OnInit, OnDestroy {
   walletAccount = null;
 
   showEditAddressBook = false;
-  addressBookModel = '';
+  publicLabelEdit = '';
+  privateLabelEdit = '';
   showEditRepresentative = false;
   representativeModel = '';
   representativeResults$ = new BehaviorSubject([]);
@@ -92,7 +93,7 @@ export class AccountDetailsComponent implements OnInit, OnDestroy {
     this.accountID = this.router.snapshot.params.account;
     this.account = await this.api.accountInfo(this.accountID);
     this.accountLabels = this.accountLabelService.getLabels(this.accountID, this.account.comment);
-    this.addressBookModel = this.accountLabels.private || '';
+    this.resetEditLabel();
     this.walletAccount = this.walletService.getWalletAccount(this.accountID);
 
     const knownRepresentative = this.repService.getRepresentative(this.account.representative);
@@ -272,20 +273,8 @@ export class AccountDetailsComponent implements OnInit, OnDestroy {
     this.notificationService.sendSuccessKey('accdetc.success-rep-change');
   }
 
-  async saveAddressBook() {
-    const addressBookLabel = this.addressBookModel.trim();
-    const saveRes = this.accountLabelService.saveAddressBookEntry(this.accountID, addressBookLabel, this.accountLabels.private);
-    if (saveRes) {
-      // success
-      this.accountLabels.private = addressBookLabel;
-      this.showEditAddressBook = false;
-      return;
-    }
-    // could not save
-    return;
-
-    /* saving of public label
-    const comment = this.addressBookModel.trim();
+  async savePublicLabel() {
+    const comment = this.publicLabelEdit.trim();
     if (this.walletService.walletIsLocked()) return this.notificationService.sendWarningKey('wallet-widget.warning-wallet-locked');
 
     const saveRes = await this.accountLabelService.saveAccountComment(this.walletAccount, comment, this.walletService.isLedgerWallet());
@@ -293,7 +282,22 @@ export class AccountDetailsComponent implements OnInit, OnDestroy {
       this.showEditAddressBook = false;
       this.accountLabels.public = comment;
     }
-    */
+  }
+
+  async savePrivateLabel() {
+    const addressBookLabel = this.privateLabelEdit.trim();
+    const saveRes = this.accountLabelService.saveAddressBookEntry(this.accountID, addressBookLabel, this.accountLabels.private);
+    if (saveRes) {
+      // success
+      this.showEditAddressBook = false;
+      this.accountLabels.private = addressBookLabel;
+    }
+  }
+
+  resetEditLabel() {
+    this.showEditAddressBook = false;
+    this.publicLabelEdit = this.accountLabels.public || '';
+    this.privateLabelEdit = this.accountLabels.private || '';
   }
 
   searchRepresentatives() {

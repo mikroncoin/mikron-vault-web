@@ -11,12 +11,31 @@
           <div class="uk-width-expand">
 
             <div *ngIf="showEditAddressBook" uk-grid>
-              <div class=" uk-width-1-1">
-                <div class="uk-margin">
-                  <div class="uk-inline uk-width-1-1">
-                    <a class="uk-form-icon uk-form-icon-flip uk-text-success" (click)="saveAddressBook()" uk-icon="icon: check" uk-tooltip title="Save Changes"></a>
-                    <a class="uk-form-icon uk-form-icon-flip uk-text-danger" style="margin-right: 26px;" (click)="showEditAddressBook = false" uk-tooltip title="Cancel Changes - Set the label to blank to delete" uk-icon="icon: close"></a>
-                    <input class="uk-input" (keyup.enter)="saveAddressBook()" [(ngModel)]="addressBookModel" placeholder="{{'accdetc.label-placeholder' | t}}" type="text" style="padding-right: 60px;">
+              <div class="uk-width-1-1">
+                <div class="uk-grid">
+                  <div class="uk-width-1-4">
+                    {{'public-label' | t}}:
+                  </div>
+                  <div class="uk-width-expand">
+                    <div class="uk-inline uk-width-1-1">
+                      <a class="uk-form-icon uk-form-icon-flip uk-text-success" (click)="savePublicLabel()" uk-icon="icon: check" uk-tooltip title="Save Changes"></a>
+                      <a class="uk-form-icon uk-form-icon-flip uk-text-danger" style="margin-right: 26px;" (click)="resetEditLabel()" uk-tooltip title="Cancel Changes - Set the label to blank to delete" uk-icon="icon: close"></a>
+                      <input class="uk-input" (keyup.enter)="savePublicLabel()" [(ngModel)]="publicLabelEdit" placeholder="{{'accdetc.public-label-placeholder' | t}}" type="text" style="padding-right: 60px;"/>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="uk-width-1-1">
+                <div class="uk-grid">
+                  <div class="uk-width-1-4">
+                    {{'private-label' | t}}:
+                  </div>
+                  <div class="uk-width-expand">
+                    <div class="uk-inline uk-width-1-1">
+                      <a class="uk-form-icon uk-form-icon-flip uk-text-success" (click)="savePrivateLabel()" uk-icon="icon: check" uk-tooltip title="Save Changes"></a>
+                      <a class="uk-form-icon uk-form-icon-flip uk-text-danger" style="margin-right: 26px;" (click)="resetEditLabel()" uk-tooltip title="Cancel Changes - Set the label to blank to delete" uk-icon="icon: close"></a>
+                      <input class="uk-input" (keyup.enter)="savePrivateLabel()" [(ngModel)]="privateLabelEdit" placeholder="{{'accdetc.private-label-placeholder' | t}}" type="text" style="padding-right: 60px;"/>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -37,8 +56,8 @@
           </div>
           <div class="uk-width-auto">
             <ul class="uk-hidden-hover uk-iconnav">
-              <li><span uk-icon="icon: pencil;" title="Edit Account Label" uk-tooltip (click)="showEditAddressBook = !showEditAddressBook" title="Edit Account Label"></span></li>
               <li><a ngxClipboard [cbContent]="accountID" (cbOnSuccess)="copied()" uk-icon="icon: copy" title="{{'account-copy' | t}}" uk-tooltip></a></li>
+              <li><span uk-icon="icon: pencil;" title="Edit Account Label" uk-tooltip (click)="showEditAddressBook = !showEditAddressBook" title="Edit Account Label"></span></li>
             </ul>
           </div>
         </div>
