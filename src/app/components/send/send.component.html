@@ -32,17 +32,17 @@
                       <ul class="uk-nav uk-nav-default">
                         <li class="uk-nav-header">{{'sendc.address-book-results' | t}}</li>
                         <li class="uk-nav-divider"></li>
-                        <li *ngFor="let book of addressBookResults$ | async">
-                          <a (click)="selectBookEntry(book.account)">{{ book.name }}</a>
+                        <li *ngFor="let label of addressBookResults$ | async">
+                          <a (click)="selectAccountByLabel(label.account)" uk-tooltip title="{{ label.labelFull + ' ' + label.account }}">{{ label.label }}</a>
                         </li>
                       </ul>
                     </div>
                   </div>
                 </div>
 
-                <div class="uk-form-controls" *ngIf="addressBookMatch">
+                <div class="uk-form-controls" *ngIf="toAddressLabel && toAddressLabel.nice">
                   <div class="uk-inline uk-width-1-1">
-                    <span class="uk-label uk-label-primary">{{ addressBookMatch }}</span>
+                    <span class="uk-label uk-label-primary account-label" uk-tooltip title="{{ toAddressLabel.full }}">{{ toAddressLabel.nice }}</span>
                   </div>
                 </div>
               </div>

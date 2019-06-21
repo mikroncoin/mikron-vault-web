@@ -6,7 +6,6 @@ import {WalletService} from "../../services/wallet.service";
 import {NotificationService} from "../../services/notification.service";
 import {ApiService} from "../../services/api.service";
 import {UtilService} from "../../services/util.service";
-
 import * as blake from 'blakejs';
 import {WorkPoolService} from "../../services/work-pool.service";
 import {AppSettingsService} from "../../services/app-settings.service";
@@ -14,6 +13,7 @@ import {ActivatedRoute, ActivatedRouteSnapshot} from "@angular/router";
 import {PriceService} from "../../services/price.service";
 import {BlockService} from "../../services/block.service";
 import {LanguageService} from '../../services/language.service';
+import {AccountLabelService, AccountLabels} from "../../services/account-label.service";
 
 const nacl = window['nacl'];
 
@@ -31,7 +31,7 @@ export class SendComponent implements OnInit {
   accounts = this.walletService.wallet.accounts;
   addressBookResults$ = new BehaviorSubject([]);
   showAddressBook = false;
-  addressBookMatch = '';
+  toAddressLabel: AccountLabels|null = null;
 
   // Denominations for send
   denominations = [
@@ -64,7 +64,8 @@ export class SendComponent implements OnInit {
     private workPool: WorkPoolService,
     public settings: AppSettingsService,
     private util: UtilService,
-    private language: LanguageService
+    private language: LanguageService,
+    private accountLabelService: AccountLabelService,
   ) { }
 
   async ngOnInit() {
@@ -127,19 +128,39 @@ export class SendComponent implements OnInit {
     this.amount = newAmount;
   }
 
-  searchAddressBook() {
+  async searchAddressBook() {
     this.showAddressBook = true;
     const search = this.toAccountID || '';
+    let labels = {};
+
+    // First search in the local private labels only
     const addressBook = this.addressBookService.addressBook;
-
-    const matches = addressBook
+    addressBook
       .filter(a => a.name.toLowerCase().indexOf(search.toLowerCase()) !== -1)
-      .slice(0, 5);
-
+      .slice(0, 5)
+      .forEach(m => {
+        const a = m.account;
+        const label1 = this.accountLabelService.getLabels(a, null);
+        labels[a] = {account: a, label: label1.nice, labelFull: label1.full};
+      });
+    const matches = Object.keys(labels).map(a => ({account: labels[a].account, label: labels[a].label, labelFull: labels[a].labelFull}));
     this.addressBookResults$.next(matches);
+
+    // Search in the public labels (account comments) too, from the node
+    if (search.length >= 3) {
+      const accountsComments = await this.nodeApi.commentSearch(search, 5);
+      if (accountsComments && accountsComments.accounts) {
+        Object.keys(accountsComments.accounts).forEach(a => {
+          const label1 = this.accountLabelService.getLabels(a, accountsComments.accounts[a]);
+          labels[a] = {account: a, label: label1.nice, labelFull: label1.full};
+        });
+        const matches2 = Object.keys(labels).map(a => ({account: labels[a].account, label: labels[a].label, labelFull: labels[a].labelFull}));
+        this.addressBookResults$.next(matches2);
+      }
+    }
   }
 
-  selectBookEntry(account) {
+  selectAccountByLabel(account) {
     this.showAddressBook = false;
     this.toAccountID = account;
     this.searchAddressBook();
@@ -153,7 +174,7 @@ export class SendComponent implements OnInit {
     // Remove spaces from the account id
     this.toAccountID = this.toAccountID.replace(/ /g, '');
 
-    this.addressBookMatch = this.addressBookService.getAccountName(this.toAccountID);
+    this.toAddressLabel = null; // filled later
 
     // const accountInfo = await this.walletService.walletApi.accountInfo(this.toAccountID);
     const accountInfo = await this.nodeApi.accountInfo(this.toAccountID);
@@ -167,6 +188,8 @@ export class SendComponent implements OnInit {
     if (accountInfo && accountInfo.frontier) {
       this.toAccountStatus = 2;
     }
+
+    this.toAddressLabel = this.accountLabelService.getLabels(this.toAccountID, accountInfo ? accountInfo.comment : null);
   }
 
   async sendTransaction() {
@@ -222,7 +245,7 @@ export class SendComponent implements OnInit {
         this.toAccountStatus = null;
         this.fromAddressBook = '';
         this.toAddressBook = '';
-        this.addressBookMatch = '';
+        this.toAddressLabel = null;
       } else {
         if (!this.walletService.isLedgerWallet()) {
           this.notificationService.sendErrorKey('sendc.error-send');

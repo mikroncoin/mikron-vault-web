@@ -58,6 +58,9 @@ export class ApiService {
   async blockHash(block: any): Promise<{ hash: string }> {
     return await this.request('block_hash', { block: JSON.stringify(block) });
   }
+  async commentSearch(commentPattern: string, maxCount: number): Promise<{ accounts: any, count: number }> {
+    return await this.request('comment_search', { comment: commentPattern, max_count: maxCount });
+  }
   async workGenerate(hash): Promise<{ work: string }> {
     return await this.request('work_generate', { hash });
   }
