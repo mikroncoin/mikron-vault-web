@@ -61,7 +61,7 @@
         "action": "Számla részletei",
         "error-rep-change": "Hiba a képviselő állításánál, próbáld újra",
         "private-label-placeholder": "Privát számla címke (törléshez állítsd üresre)",
-        "public-label-placeholder": "Publikus számla címke (mindenki számára látható, blokkláncban tárolódik)",
+        "public-label-placeholder": "Publikus számla címke (mindenki számára látható, blokkláncban tárolódik, tulajdonos állítja)",
         "load-more": "További sorok betöltése",
         "no-history": "Nincsenek műveletek",
         "pending-deposits": "Függő fogadások",
@@ -321,7 +321,11 @@
         "title": "Tárca Importálás"
     },
     "labelserv": {
+        "confirm": "Biztosan folytatod?",
+        "confirm-public-label-save": "FIGYELEM: A publikus számla címkék a blokkláncban tárolódnak, mindenki által láthatóak, a történetüket soha nem lehet letörölni, és helyet foglalnak a blokkláncban.",
         "error-comment-block": "Hiba történt a publikus címke mentése során (nem sikerült megjegyzés blokkot létrehozni)",
+        "error-invalid-comment": "Érvénytelen címke (pl. üres, túl rövid, túl hosszú)",
+        "error-not-own": "Publikus címkét csak saját számlára lehet állítani (csak a tulajdonos állíthatja)",
         "success-comment-block": "Publikus címke sikeresen mentve a blokkláncba"
     },
     "lang": {

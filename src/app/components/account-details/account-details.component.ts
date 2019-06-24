@@ -13,6 +13,7 @@ import BigNumber from "bignumber.js";
 import {RepresentativeService} from "../../services/representative.service";
 import {BehaviorSubject} from "rxjs/BehaviorSubject";
 import {AccountLabelService, AccountLabels} from "../../services/account-label.service";
+import {LanguageService} from '../../services/language.service';
 
 @Component({
   selector: 'app-account-details',
@@ -65,6 +66,7 @@ export class AccountDetailsComponent implements OnInit, OnDestroy {
     public settings: AppSettingsService,
     private block: BlockService,
     private accountLabelService: AccountLabelService,
+    private languageService: LanguageService,
   ) { }
 
   async ngOnInit() {
@@ -274,9 +276,34 @@ export class AccountDetailsComponent implements OnInit, OnDestroy {
   }
 
   async savePublicLabel() {
+    // discard empty, invalid comment string
     const comment = this.publicLabelEdit.trim();
+    if (!comment || comment.length <= 0 || comment.length > 160) {
+      return this.notificationService.sendErrorKey('labelserv.error-invalid-comment');
+    }
+
+    // account must be own account from the wallet
+    if (!this.walletAccount) {
+      return this.notificationService.sendErrorKey('labelserv.error-not-own');
+    }
+
+    // wallet must be unlocked
     if (this.walletService.walletIsLocked()) return this.notificationService.sendWarningKey('wallet-widget.warning-wallet-locked');
 
+    // confirmation
+    const UIkit = window['UIkit'];
+    try {
+      await UIkit.modal.confirm(
+        '<p style="text-align: center;">' +
+        this.languageService.getTran('labelserv.confirm-public-label-save') +
+        '<br><b>' +
+        this.languageService.getTran('labelserv.confirm') +
+        '</b></p>');
+    } catch (err) {
+      return;
+    }
+
+    // save
     const saveRes = await this.accountLabelService.saveAccountComment(this.walletAccount, comment, this.walletService.isLedgerWallet());
     if (saveRes) {
       this.showEditAddressBook = false;

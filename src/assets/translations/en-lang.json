@@ -61,7 +61,7 @@
         "action": "View Account Details",
         "error-rep-change": "Error changing representative, please try again",
         "private-label-placeholder": "Private Account Label (set it to blank to delete)",
-        "public-label-placeholder": "Public Account Label (visible to everyone, stored in the blockchain)",
+        "public-label-placeholder": "Public Account Label (visible to everyone, stored in the blockchain, set by the owner)",
         "load-more": "Load More Results",
         "no-history": "No account history",
         "pending-deposits": "Pending Deposits",
@@ -321,7 +321,11 @@
         "title": "Import Wallet"
     },
     "labelserv": {
+        "confirm": "Are you sure to continue?",
+        "confirm-public-label-save": "WARNING: Public account labels are stored in the blockchain, are visible by everyone, their history can never be deleted, and they take up space in the blockchain.",
         "error-comment-block": "Error while saving public label (could not create comment block)",
+        "error-invalid-comment": "Invalid label (e.g. empty, too short, too long)",
+        "error-not-own": "Public comment can be set only on own accounts from the wallet (only be the owner)",
         "success-comment-block": "Public label successfully saved in blockchain"
     },
     "lang": {
