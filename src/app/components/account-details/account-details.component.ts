@@ -179,7 +179,7 @@ export class AccountDetailsComponent implements OnInit, OnDestroy {
     if (resetPage) {
       this.pageSize = 25;
     }
-    const history = await this.api.accountHistory(account, this.pageSize, true);
+    const history = await this.api.accountHistory(account, this.pageSize, true, true);
     let additionalBlocksInfo = [];
 
     if (history && history.history && Array.isArray(history.history)) {
@@ -225,13 +225,10 @@ export class AccountDetailsComponent implements OnInit, OnDestroy {
         }
       }
 
-      // Retrieve comments for accounts that appear in history, deduplicate
-      const histAccs = Array.from(new Set(this.accountHistory.map(h => h.hist_account)));
-      const accountsInfos = await this.api.accountsInfos(histAccs);
-      if (accountsInfos && accountsInfos.infos) {
-        // fill in labels
-        this.accountHistory.forEach(h => h.accountLabels = this.accountLabelService.getLabels(h.hist_account, accountsInfos.infos[h.hist_account].comment));
-      }
+      // process labels
+      this.accountHistory.forEach(h => {
+        h.accountLabels = this.accountLabelService.getLabels(h.hist_account, h.account_comment);
+      });
     } else {
       this.accountHistory = [];
     }
