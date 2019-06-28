@@ -179,51 +179,25 @@ export class AccountDetailsComponent implements OnInit, OnDestroy {
     if (resetPage) {
       this.pageSize = 25;
     }
-    const history = await this.api.accountHistory(account, this.pageSize, true, true);
-    let additionalBlocksInfo = [];
+    const history = await this.api.accountHistory(account, this.pageSize, false, true);
 
     if (history && history.history && Array.isArray(history.history)) {
       this.accountHistoryNonfiltered = history.history.map(h => {
         // prepare date
         h.date = h.block_time * 1000;
-        if (h.type && h.type === 'state' && h.link) {
-          // For Open and receive blocks, we need to look up block info to get originating account
-          if (h.subtype === 'open' || h.subtype === 'receive' || h.subtype === 'open_receive') {
-            additionalBlocksInfo.push({ hash: h.hash, link: h.link });
-          } else {  // send or other
-            h.hist_account = this.util.account.getPublicAccountID(this.util.hex.toUint8(h.link));
-          }
-        } else {
-          // no link
-          h.hist_account = h.account;
-        }
+        h.hist_account = h.account;
         return h;
       });
 
-      // Filter out comment blocks
-      // Filter out change blocks (now that we are using the raw output)
+      // Filter out chnage, comment blocks
+      // These should not be returned, but filter them out nonetheless
       this.accountHistory = this.accountHistoryNonfiltered.filter(h =>
         h.type !== 'undefined' &&
         !(h.type === 'state' && h.subtype === undefined) &&
+        !(h.type === 'state' && h.subtype === 'change') &&
         h.type !== 'comment' &&
-        h.type !== 'change' &&
-        h.subtype !== 'change');
-
-      if (additionalBlocksInfo.length) {
-        const blocksInfo = await this.api.blocksInfo(additionalBlocksInfo.map(b => b.link));
-        for (let block in blocksInfo.blocks) {
-          if (!blocksInfo.blocks.hasOwnProperty(block)) continue;
-
-          const matchingBlock = additionalBlocksInfo.find(a => a.link === block);
-          if (!matchingBlock) continue;
-          const accountInHistory = this.accountHistory.find(h => h.hash === matchingBlock.hash);
-          if (!accountInHistory) continue;
-
-          const blockData = blocksInfo.blocks[block];
-
-          accountInHistory.hist_account = blockData.block_account;
-        }
-      }
+        h.type !== 'change'
+      );
 
       // process labels
       this.accountHistory.forEach(h => {
