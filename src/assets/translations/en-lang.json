@@ -575,7 +575,7 @@
             "t1": "Security Focused",
             "d1": "All sensitive operations happen in your browser only - your seed and private keys are never sent across your network, or stored on any server in any format. (So there is no need for server-based authentication measures such as 2FA)",
             "t2": "Any Device, Anywhere",
-            "d2": "Send and receive Mikron from any device using the web wallet, be it mobile or desktop, Windows or Liunux.",
+            "d2": "Send and receive Mikron from any device using the web wallet, be it mobile or desktop, Windows or Linux.",
             "t3": "'No Strings Attached' Wallet",
             "d3": "Because no information is ever stored on a server, there is no account to login to or email address required. Create as many wallets as you want and switch between them easily.",
             "t4": "Helpful Features",
