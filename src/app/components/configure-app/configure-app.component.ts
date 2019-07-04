@@ -113,12 +113,12 @@ export class ConfigureAppComponent implements OnInit {
       serverWS: 'wss://wallet-wss.mikron.io/',
     },
     {
-      name: 'MikronLiveTest1',
-      value: 'server-test1',
+      name: 'Mikron BetaNet',
+      value: 'server-beta',
       isCustom: false,
-      serverAPI: 'http://server3.mikron.io:9950/api/node-api',
+      serverAPI: 'http://wallet.mikron.io:444/api/node-api',
       serverNode: '',
-      serverWS: 'ws://server3.mikron.io:3333/',
+      serverWS: '',
     },
     {
       name: 'Custom',
