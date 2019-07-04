@@ -116,7 +116,7 @@ export class ConfigureAppComponent implements OnInit {
       name: 'Mikron BetaNet',
       value: 'server-beta',
       isCustom: false,
-      serverAPI: 'http://wallet.mikron.io:444/api/node-api',
+      serverAPI: 'https://wallet.mikron.io:444/api/node-api',
       serverNode: '',
       serverWS: '',
     },
