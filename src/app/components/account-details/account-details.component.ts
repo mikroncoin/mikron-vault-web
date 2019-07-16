@@ -102,12 +102,13 @@ export class AccountDetailsComponent implements OnInit, OnDestroy {
     this.repLabel = knownRepresentative ? knownRepresentative.name : null;
 
     // If there is a pending balance, or the account is not opened yet, load pending transactions
+    let pendingBlocksLocal = [];
     if ((!this.account.error && this.account.pending > 0) || this.account.error) {
       const pending = await this.api.pending(this.accountID, 25);
       if (pending && pending.blocks) {
         for (let block in pending.blocks) {
           if (!pending.blocks.hasOwnProperty(block)) continue;
-          this.pendingBlocks.push({
+          pendingBlocksLocal.push({
             account: pending.blocks[block].source,
             amount: pending.blocks[block].amount,
             date: pending.blocks[block].block_time * 1000,
@@ -116,6 +117,9 @@ export class AccountDetailsComponent implements OnInit, OnDestroy {
           });
         }
       }
+    }
+    if (pendingBlocksLocal.length > 0) {
+      this.pendingBlocks = pendingBlocksLocal;
     }
 
     // If the account doesnt exist, set the pending balance manually
